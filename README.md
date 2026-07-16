@@ -11,13 +11,13 @@ Applied the homography to the right image and used inverse warping to build a fi
 Used Billinear Interpolation during Inverse Warping whenver warped pixel coordinates were ambiguous.
 
 ## Example
-Left Image:
+Left Image:  
 ![alt text](assets/left_image.png)
 
-Right Image:
+Right Image:  
 ![alt text](assets/right_image.png)
 
-Final Stitched Image:
+Final Stitched Image:  
 ![alt text](assets/final_warped_image.png)
 
 
