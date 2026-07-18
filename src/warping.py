@@ -49,7 +49,32 @@ def compute_homo(matched_corner_pairs):
     return H
 
 def checking_points_are_collinear(rand_matches):
-    pass
+    
+    match1, match2 = rand_matches
+
+    p1 = match1[0]
+    p2 = match1[1]
+    p3 = match2[0]
+    p4 = match2[1]
+
+    points = [p1, p2, p3, p4]
+
+    leaveOut = len(points) - 1
+    # first check p1 p2 p3
+    # 2nd check p1 p2 p4
+    # 3rd check p1 p3 p4
+    # 4th check p2 p3 p4
+    # use 2 pointer method to identify which to leave out
+    # use while loop to and have early return when points_are_collinear is true
+
+    while leaveOut >= 0:
+        pass
+        
+
+def points_are_collinear(p1, p2, p3):
+    triagArea = 0.5 * (p1[0] * (p2[1] - p3[1]) + p2[0] * (p3[1] - p1[1]) + p3[0] * (p1[1] - p2[1]))
+
+    return triagArea < 1e-5
 
 def random_select_four_matches(matched_corner_pairs):
     pass

@@ -101,7 +101,7 @@ def gaussian_filtering(image, image_width, image_height):
 
         fi += 1
 
-    result = np.array(result).astype(np.float128)
+    result = np.array(result).astype(np.float64)
 
     return result
 
@@ -216,6 +216,21 @@ def compute_cornerness_score(ix_square, iy_square, ixiy, alpha, threshold, image
     return cornerList[0:1000] # Only need the top 1000 scores
 
 
+def build_corner_response(cornerList, image_width, image_height):
+    
+    cornerResponse = np.zeros((image_height, image_width))
+
+    for corner in cornerList:
+        i = corner[0]
+        j = corner[1]
+        score = corner[2]
+
+        cornerResponse[i, j] = score
+
+    
+    return cornerResponse
+
+
 def non_maximum_suppression(corner_response, image_width, image_height):
     C = np.pad(corner_response, 1, 'edge') # border boundary padding matrix of corner scores
     suppressedCornerList = [] # list of coordinates of corner scores after non-maximum suppression
@@ -250,8 +265,8 @@ def non_maximum_suppression(corner_response, image_width, image_height):
 
 def main():
 
-    left_image = np.array(Image.open("left_image.png").convert('L'))
-    right_image = np.array(Image.open("right_image.png").convert('L'))
+    left_image = np.array(Image.open("assets/left_image.png").convert('L'))
+    right_image = np.array(Image.open("assets/right_image.png").convert('L'))
 
     left_imageSize = np.shape(left_image)
     image_height = left_imageSize[0]
@@ -268,11 +283,13 @@ def main():
     cornerness_score_left = compute_cornerness_score(left_ix_square, left_iy_square, left_ixiy, alpha, threshold, image_width, image_height)
     cornerness_score_right = compute_cornerness_score(right_ix_square, right_iy_square, right_ixiy, alpha, threshold, image_width, image_height)
 
-    left_corner_response = np.load("step4_left_corner_response.npy")
-    right_corner_response = np.load("step4_right_corner_response.npy")
+    left_corner_response = build_corner_response(cornerness_score_left, image_width, image_height)
+    right_corner_response = build_corner_response(cornerness_score_right, image_width, image_height)
 
     nms_left_response = non_maximum_suppression(left_corner_response, image_width, image_height)
     nms_right_response = non_maximum_suppression(right_corner_response, image_width, image_height)
+
+
 
 
 if __name__ == "__main__":
