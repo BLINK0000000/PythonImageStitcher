@@ -52,12 +52,13 @@ def checking_points_are_collinear(rand_matches):
     
     match1, match2 = rand_matches
 
-    p1 = match1[0]
-    p2 = match1[1]
-    p3 = match2[0]
-    p4 = match2[1]
+    point1 = match1[0]
+    point2 = match1[1]
+    point3 = match2[0]
+    point4 = match2[1]
 
-    points = [p1, p2, p3, p4]
+    points = [point1, point2, point3, point4]
+    checkPoints = []
 
     leaveOut = len(points) - 1
     # first check p1 p2 p3
@@ -68,8 +69,17 @@ def checking_points_are_collinear(rand_matches):
     # use while loop to and have early return when points_are_collinear is true
 
     while leaveOut >= 0:
-        pass
+        for i in range(len(points)):
+            if i != leaveOut:
+                checkPoints.append(points[i])
+            
+        if points_are_collinear(checkPoints[0], checkPoints[1], checkPoints[2]):
+            return True
         
+        leaveOut -= 1
+        
+    return False
+
 
 def points_are_collinear(p1, p2, p3):
     triagArea = 0.5 * (p1[0] * (p2[1] - p3[1]) + p2[0] * (p3[1] - p1[1]) + p3[0] * (p1[1] - p2[1]))
@@ -77,7 +87,40 @@ def points_are_collinear(p1, p2, p3):
     return triagArea < 1e-5
 
 def random_select_four_matches(matched_corner_pairs):
-    pass
+    maxIndex = len(matched_corner_pairs) - 1
+    distinct = False
+    match1 = None
+    match2 = None
+
+    while not distinct:
+        matching = False
+
+        match1 = matched_corner_pairs[np.random.randint(maxIndex)]
+        match2 = matched_corner_pairs[np.random.randint(maxIndex)]
+
+        point1 = match1[0]
+        point2 = match1[1]
+        point3 = match2[0]
+        point4 = match2[1]
+
+        points = [point1, point2, point3, point4]
+
+        for i in range(len(points)):
+            if matching:
+                break
+
+            for j in range(len(points)):
+                if i != j:
+                    if points[i][0] == points[j][0] and points[i][1] == points[j][1]:
+                        matching = True
+                        break
+
+        if not matching:
+            distinct = True
+        
+
+    return (match1, match2)
+
 
 def ransac_algorithm(matched_corner_pairs):
     """
@@ -216,22 +259,19 @@ def inverse_warping(best_transformation_matrix, left_image, right_image):
 
 def main():
 
-    # Testing
-    np.random.seed(784)
-
     matchedCorners = np.load("filtered_matched_corner_pairs.npy")
 
-    testH = np.load("transformation_matrix.npy")
+    # testH = np.load("transformation_matrix.npy")
 
     left_image = np.array(Image.open("left_image.png").convert('L'))
     right_image = np.array(Image.open("right_image.png").convert('L'))
-    final_warped_image = np.array(Image.open("final_warped_image.png").convert('L'))
+    # final_warped_image = np.array(Image.open("final_warped_image.png").convert('L'))
 
-    best_transformation_matrix = np.array([[-0.014,    0.0,    1.0],
-                                       [   0.0, -0.014,    0.0],
-                                       [   0.0,    0.0, -0.014]])
+    # best_transformation_matrix = np.array([[-0.014,    0.0,    1.0],
+    #                                    [   0.0, -0.014,    0.0],
+    #                                    [   0.0,    0.0, -0.014]])
     
-    warped_image = inverse_warping(best_transformation_matrix, left_image, right_image)
+    warped_image = inverse_warping(ransac_algorithm(matchedCorners), left_image, right_image)
 
     img = Image.fromarray(warped_image)
     img.show()
